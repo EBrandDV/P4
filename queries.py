@@ -88,7 +88,7 @@ def q_cluster(graph):
         }}
         {{
         SELECT (count(*) as ?triples) 
-            WHERE{{ GRAPH <{{graph}}> {{
+            WHERE{{ GRAPH <{graph}> {{
                 ?s ?p ?o .
             }}
         }}
@@ -377,8 +377,7 @@ WHERE{{
     
 # ---------------------------------------------------------------------------------------------------------------
 
-def query_set(graph, offset):
-  
+def query_set(graph, offset = 0):
     q_vocab = f'''
     SELECT (?entity as ?vocab_set)
       WHERE{{
@@ -397,13 +396,13 @@ def query_set(graph, offset):
     return q_vocab
 
 
-def vocab_set(wrapper, graph, offset = 0):
+def vocab_set(wrapper, graph):
 
     incr = 0
     voc_set = set()
 
     while incr % 1048576 == 0:
-            q_vocab = query_set(graph, incr)
+            q_vocab = query_set(graph, offset= incr)
 
             wrapper.setQuery(q_vocab)
             res = wrapper.query().convert()

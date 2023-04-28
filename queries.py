@@ -749,3 +749,59 @@ def temp_retr(wrapper, graph_list):
     return vdyn_dict
 
 
+if __name__ == '__main__':
+    endpoint = 'http://localhost:8890/sparql'
+
+    # Configure the SPARQL endpoint
+    sparql = SPARQLWrapper(endpoint)
+
+    # Configure the SPARQL endpoint and desired return format
+    sparql.setReturnFormat(JSON)
+    
+    def query_tester(graph_1 = 'http://localhost:8890/35', graph_2 = 'http://localhost:8890/dims', ont = 'http://localhost:8890/pediaowl'):
+        print('q_density')
+        sparql.setQuery(q_density(graph= graph_2))
+        print(sparql.query().convert()["results"]["bindings"])
+        print('q_cluster')
+        sparql.setQuery(q_cluster(graph= graph_2))
+        print(sparql.query().convert()["results"]["bindings"])
+        print('q_voc_uni')
+        sparql.setQuery(q_voc_uni(graph= graph_1))
+        print(sparql.query().convert()["results"]["bindings"])
+        print('q_knowledge_degree')
+        sparql.setQuery(q_knowledge_degree(graph= graph_1))
+        print(sparql.query().convert()["results"]["bindings"])
+        print('q_growth')
+        sparql.setQuery(q_growth(graph1= graph_1, graph2= graph_2))
+        print(sparql.query().convert()["results"]["bindings"])
+        print('q_change_ratio')
+        sparql.setQuery(q_change_ratio(graph1= graph_1, graph2= graph_2))
+        print(sparql.query().convert()["results"]["bindings"])
+        print('q_add_change_ratio')
+        sparql.setQuery(q_add_change_ratio(graph1= graph_1, graph2= graph_2))
+        print(sparql.query().convert()["results"]["bindings"])
+        print('q_rem_change_ratio')
+        sparql.setQuery(q_rem_change_ratio(graph1= graph_1, graph2= graph_2))
+        print(sparql.query().convert()["results"]["bindings"])
+        print('query_set')
+        sparql.setQuery(query_set(graph= graph_1))
+        print(sparql.query().convert()["results"]["bindings"])
+        
+        print('vocab_set')
+        print(vocab_set(wrapper= sparql, graph= graph_1))
+        print('vocab_union')
+        print(vocab_union(wrapper= sparql, graph1= graph_1, graph2= graph_2))
+        print('vocab_dyna')
+        print(vocab_dyna(wrapper= sparql, graph1= graph_1, graph2= graph_2))
+        
+        print('q_icr')
+        sparql.setQuery(q_icr(graph= graph_1, ont= ont))
+        print(sparql.query().convert()["results"]["bindings"])
+        print('q_ipr')
+        sparql.setQuery(q_ipr(graph= graph_1, ont= ont))
+        print(sparql.query().convert()["results"]["bindings"])
+        print('q_imi')
+        sparql.setQuery(q_imi(ont= ont))
+        print(sparql.query().convert()["results"]["bindings"])
+    
+    query_tester()

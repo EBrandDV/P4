@@ -20,7 +20,7 @@ def query_retriever(wrapper, query, name):
 
     res = res['results']['bindings'][0][f'{name}']['value']
 
-    res = int(res)
+    res = float(res)
     
     return res
 

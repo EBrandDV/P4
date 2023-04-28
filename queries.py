@@ -697,6 +697,8 @@ def quality(wrapper, graph_list, ont_list):
         qual_dict['IPR'].append(ipr)
         qual_dict['IMI'].append(imi)
         
+        v_num +=1
+        
         print(qual_dict)
         
     with open('quality.csv', 'w') as q:

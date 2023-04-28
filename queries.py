@@ -512,6 +512,61 @@ WHERE {{
 '''
     return q_icr
 
+def q_icr_check(graph, ont, request):
+    if request == 'g':
+        q_icr = f'''
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+        SELECT DISTINCT (?class as ?graph_classes)
+        FROM NAMED <{graph}>
+            WHERE {{GRAPH <{graph}> {{
+                ?s rdf:type ?class .
+                }}
+            }}
+        '''
+        return q_icr
+    
+    if request == 'o':
+        q_icr = f'''
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+            SELECT DISTINCT (?s as ?owl_classes)
+            FROM NAMED <{ont}>
+                WHERE{{ GRAPH <{ont}> {{?s ?p ?o
+                    {{?s rdf:type owl:Class}} 
+                    UNION
+                    {{?s rdf:type rdfs:Class}} 
+                    }}    
+                }}
+        '''
+        return q_icr
+
+def icr_set(wrapper, graph, ont):
+    graph_set = set()
+    owl_set = set()
+
+    q_icr = q_icr_check(graph, ont, request= 'g')
+
+    wrapper.setQuery(q_icr)
+    res = wrapper.query().convert()
+
+    for ans in res['results']['bindings']:
+        graph_set.add(ans['graph_classes']['value'])
+    
+    q_icr = q_icr_check(graph, ont, request= 'o')
+
+    wrapper.setQuery(q_icr)
+    res = wrapper.query().convert()
+    
+    for ans in res['results']['bindings']:
+        owl_set.add(ans['owl_classes']['value'])
+
+    return (graph_set - owl_set), len(graph_set), len(owl_set)
+
 
 def q_ipr(graph, ont):
     
@@ -804,4 +859,5 @@ if __name__ == '__main__':
         sparql.setQuery(q_imi(ont= ont))
         print(sparql.query().convert()["results"]["bindings"])
     
-    query_tester()
+    #query_tester()
+    print(icr_set(wrapper= sparql, graph= 'http://localhost:8890/35', ont= 'http://localhost:8890/pediaowl'))

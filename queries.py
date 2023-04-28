@@ -682,8 +682,9 @@ def quality(wrapper, graph_list, ont_list):
                 'IPR': [],
                 'IMI': []}
     
+    v_num = 0
+    
     for i in range(len(graph_list)):
-        v_num = 0
         
         icr = query_retriever(wrapper, q_icr(graph_list[i], ont_list[i]), 'icr')
         ipr = query_retriever(wrapper, q_ipr(graph_list[i], ont_list[i]), 'ipr')
@@ -695,6 +696,8 @@ def quality(wrapper, graph_list, ont_list):
         qual_dict['ICR'].append(icr)
         qual_dict['IPR'].append(ipr)
         qual_dict['IMI'].append(imi)
+        
+        v_num +=1
         
         print(qual_dict)
         

@@ -217,7 +217,40 @@ def q_growth(graph1, graph2):
     
     return q_grow
 
-
+def q_cluster2(graph):
+    triangle = f'''
+        SELECT (count(*) as ?triangles)
+        from named <{graph}>
+            WHERE{{ 
+                {{select distinct(?X) ?Y ?Z 
+                    where {{ graph <{graph}> {{
+                        ?X ?a ?Y .
+                        ?Y ?b ?Z .
+                        ?Z ?c ?X .
+                        filter(?X != ?Y && ?X != ?Z && ?Y != ?Z)
+                        }}
+                    }}
+                }}
+            }}
+        '''
+    
+    triplet = f'''
+        SELECT (count(*) as ?connectedTriplets)
+        from named <{graph}>
+            WHERE{{ 
+                {{select distinct(?X) ?Y ?Z 
+                    where {{ graph <{graph}> {{
+                        ?X ?a ?Y .
+                        ?Y ?b ?Z .
+                        filter(!isLiteral(?Z))
+                        filter(?X != ?Y && ?X != ?Z && ?Y != ?Z)
+                    }}
+                }}
+            }}
+        }}
+        '''
+    
+    return triangle, triplet
 # --------------------------------------------------------------------------------------------------------------------
 
 
@@ -446,12 +479,8 @@ def vocab_union(wrapper, graph1, graph2):
   denom = query_retriever(wrapper, q_denom, 'denominator')
   
   return denom  
-  
-  
 
 def vocab_dyna(wrapper, graph1, graph2):
-  
-
     print('Starting queries')
 
     old_set = vocab_set(wrapper, graph1)
@@ -571,38 +600,37 @@ def icr_set(wrapper, graph, ont):
 def q_ipr(graph, ont):
     
     q_ipr = f'''
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX owl: <http://www.w3.org/2002/07/owl#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX owl: <http://www.w3.org/2002/07/owl#>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT (xsd:float(?enum)/xsd:float(?denom) as ?ipr)
-FROM NAMED <{graph}>
-FROM NAMED <{ont}>
-WHERE {{
- {{
-  SELECT (COUNT(DISTINCT ?property) AS ?enum)
-  WHERE {{ GRAPH <{graph}> {{
-    ?subject ?property ?object .
-   }}
-  }}
- }} # End subq1
- 
- {{
-  SELECT (count(*) as ?denom)
-  WHERE {{ GRAPH <{ont}> {{
-    {{
-      ?property rdf:type owl:ObjectProperty .
-    }} UNION {{
-      ?property rdf:type owl:DatatypeProperty .
-    }} UNION {{
-      ?property rdf:type owl:FunctionalProperty .
-    }} 
-   }}
-  }}  
- }} #End sub2
-}}
-'''
+        SELECT (xsd:float(?enum)/xsd:float(?denom) as ?ipr)
+        FROM NAMED <{graph}>
+        FROM NAMED <{ont}>
+        WHERE {{
+            {{
+            SELECT (COUNT(DISTINCT ?property) AS ?enum)
+            WHERE {{ GRAPH <{graph}> {{
+                ?subject ?property ?object .
+                }}
+            }}
+            }} # End subq1
+            {{
+            SELECT (count(*) as ?denom)
+            WHERE {{ GRAPH <{ont}> {{
+                {{
+                ?property rdf:type owl:ObjectProperty .
+                }} UNION {{
+                ?property rdf:type owl:DatatypeProperty .
+                }} UNION {{
+                ?property rdf:type owl:FunctionalProperty .
+                }} 
+                }}
+            }}  
+            }} #End sub2
+        }}
+        '''
     return q_ipr
 
 
@@ -642,7 +670,6 @@ def q_imi(ont):
     '''
     return q_imi
 
-  
 # ----------------------------------------------------------------------------------------------------------
 
 
@@ -860,4 +887,10 @@ if __name__ == '__main__':
         print(sparql.query().convert()["results"]["bindings"])
     
     #query_tester()
-    print(icr_set(wrapper= sparql, graph= 'http://localhost:8890/35', ont= 'http://localhost:8890/pediaowl'))
+    #print(icr_set(wrapper= sparql, graph= 'http://localhost:8890/35', ont= 'http://localhost:8890/pediaowl'))
+    triangle, triplet = q_cluster2(graph= 'http://localhost:8890/dims2')
+    sparql.setQuery(triangle)
+    cc_triangle = sparql.query().convert()["results"]["bindings"][0]['triangles']['value']
+    sparql.setQuery(triplet)
+    cc_triplet = sparql.query().convert()["results"]["bindings"][0]['connectedTriplets']['value']
+    print(int(cc_triangle)/int(cc_triplet), cc_triangle, cc_triplet)

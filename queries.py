@@ -514,6 +514,7 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX dbo: <http://dbpedia.org/ontology/>
 
 SELECT (xsd:float(?enum)/xsd:float(?denom) as ?icr)
 FROM NAMED <{graph}>
@@ -523,6 +524,7 @@ WHERE {{
   SELECT (COUNT(DISTINCT ?class) as ?enum)
   WHERE {{GRAPH <{graph}> {{
     ?s rdf:type ?class .
+    FILTER(isUri(?class) && STRSTARTS(STR(?class), STR(dbo:)))
    }}
   }}
  }} # End subq1
@@ -547,6 +549,7 @@ def q_icr_check(graph, ont, request):
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
 
         SELECT DISTINCT (?class as ?graph_classes)
         FROM NAMED <{graph}>
@@ -888,6 +891,54 @@ def temp_retr(wrapper, graph_list):
     return vdyn_dict
 
 
+def top_entities(entity, wrapper, graph_list, file_name):
+
+    common_dict = {'File':[], 
+                    'Version':[],
+                    'Rank':[],
+                    'Name':[],
+                    'Count':[]
+                    } 
+
+    for names in graph_list:
+        v_num = 0
+
+
+        for graph in names:
+
+            top = 1
+
+            query = f'''select ?{entity} (count(?{entity}) as ?count)
+                        from named <{graph}>
+                        where {{ GRAPH <{graph}>
+                        {{?s ?p ?o}}
+                        }}
+                        ORDER BY desc (?count) limit 10
+                        '''
+            
+            wrapper.setQuery(query)
+            res = wrapper.query().convert()
+
+            for l in res['results']['bindings']:
+                common_dict['File'].append(graph)
+                common_dict['Version'].append(v_num)
+                common_dict['Rank'].append(top)
+                top +=1
+                common_dict['Name'].append(l[entity]['value'])
+                common_dict['Count'].append(l['count']['value'])
+        
+
+            v_num += 1
+
+            #Consider not writing every time
+            with open(file_name, 'w') as sc:
+                writer = csv.writer(sc) #requires import csv
+                writer.writerow(common_dict.keys())
+                writer.writerows(zip(*common_dict.values()))
+    
+    return common_dict
+
+
 if __name__ == '__main__':
     endpoint = 'http://localhost:8890/sparql'
 
@@ -944,6 +995,7 @@ if __name__ == '__main__':
         print(sparql.query().convert()["results"]["bindings"])
     
     #query_tester()
+
     print(icr_set(wrapper= sparql, graph= 'http://localhost:8890/35', ont= 'http://localhost:8890/pediaowl'))
     if False:
         triangle, triplet = q_cluster2(graph= 'http://localhost:8890/dims2')

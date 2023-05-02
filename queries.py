@@ -995,8 +995,9 @@ if __name__ == '__main__':
         print(sparql.query().convert()["results"]["bindings"])
     
     #query_tester()
-
-    print(icr_set(wrapper= sparql, graph= 'http://localhost:8890/35', ont= 'http://localhost:8890/pediaowl'))
+    sparql.setQuery(q_icr(graph= 'http://localhost:8890/35', ont= 'http://localhost:8890/pediaowl'))
+    print(sparql.query().convert()["results"]["bindings"])
+    #print(icr_set(wrapper= sparql, graph= 'http://localhost:8890/35', ont= 'http://localhost:8890/pediaowl'))
     if False:
         triangle, triplet = q_cluster2(graph= 'http://localhost:8890/dims2')
         sparql.setQuery(triangle)

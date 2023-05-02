@@ -832,7 +832,7 @@ def quality(wrapper, graph_list, ont_list):
         
         icr = query_retriever(wrapper, q_icr(graph_list[i], ont_list[i]), 'icr')
         ipr = query_retriever(wrapper, q_ipr(graph_list[i], ont_list[i]), 'ipr')
-        imi = 1/query_retriever(wrapper, q_imi(graph_list[i], ont_list[i]), 'imi')
+        imi = 1/query_retriever(wrapper, q_imi(ont_list[i]), 'imi')
         
         #Insert information into the  dictionary
         qual_dict['File'].append(graph_list[i])

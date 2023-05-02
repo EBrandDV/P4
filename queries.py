@@ -8,29 +8,10 @@ import csv
 import numpy as np
 
 
+
 #-----------------------------------------------------------------------------
 
-#! Now we want to combine all the queries so we get the results
-
-
-def query_retriever(wrapper, query, name):
-    
-    wrapper.setQuery(query)
-    res = wrapper.query().convert()
-
-    res = res['results']['bindings'][0][f'{name}']['value']
-
-    res = float(res)
-    
-    return res
-
-
-
-#----------------------------------------------------------------------------
-
-#! This section is dedicated to functions that return query text
-
-
+#! Must be run first to get the graph lists
 
 def graph_retr(wrapper):
     
@@ -65,9 +46,94 @@ def graph_retr(wrapper):
 
 
 
+#-----------------------------------------------------------------------------
+
+#! Now we want to combine all the queries so we get the results
 
 
-#---------------------------------------------------------------------------
+def query_retriever(wrapper, query, name):
+    
+    wrapper.setQuery(query)
+    res = wrapper.query().convert()
+
+    res = res['results']['bindings'][0][f'{name}']['value']
+
+    res = float(res)
+    
+    return res
+
+
+#-------------------------------------------------------------------------
+
+#! Create a csv file with basic information about all graphs
+
+def data_info(wrapper, graph_list):
+    info_dict ={'File':[],
+                'Subjects': [], 
+                'Predicates':[],
+                'Objects': [],
+                'Triples': [] }
+
+    for graph in graph_list:
+        
+        #Get number of distinct subjects, predicates and objects
+        wrapper.setQuery(f'''
+            SELECT
+                (COUNT(DISTINCT ?s) as ?numSubjects)
+                (COUNT(DISTINCT ?p) as ?numPredicates)
+                (COUNT(DISTINCT ?o) as ?numObjects)
+            FROM NAMED <{graph}>
+            WHERE {{
+            GRAPH <{graph}> {{
+                ?s ?p ?o .
+                }}
+            }}
+        ''')
+
+        results = wrapper.query().convert()
+
+        for result in results['results']['bindings']:
+            numSubjects = result['numSubjects']['value']
+            numPredicates = result['numPredicates']['value']
+            numObjects = result['numObjects']['value']
+        
+        #Get number of triples
+        wrapper.setQuery(f'''
+            SELECT count(*)
+            FROM NAMED <{graph}>
+            WHERE {{
+            GRAPH <{graph}> {{
+                ?s ?p ?o .
+                }}
+            }}
+        ''')
+
+        res = wrapper.query().convert()
+
+        triples = res['results']['bindings'][0]['callret-0']['value']
+
+        #Inserting values into the dictionary
+        info_dict['File'].append(graph)
+        info_dict['Subjects'].append(numSubjects)
+        info_dict['Predicates'].append(numPredicates)
+        info_dict['Objects'].append(numObjects)
+        info_dict['Triples'].append(triples)
+
+        print(f'{graph} completed')
+    
+    #Create a csv file with the data
+    with open('basics.csv', 'w') as b:
+        writer = csv.writer(b)
+        writer.writerow(info_dict.keys())
+        writer.writerows(zip(*info_dict.values()))
+
+
+
+#----------------------------------------------------------------------------
+
+#! This section is dedicated to functions that return query text
+
+
 
 def q_density(graph):
     q_dens = f'''
@@ -890,46 +956,6 @@ def quality(wrapper, graph_list, ont_list):
         writer.writerows(zip(*qual_dict.values()))  
         
     return qual_dict      
-
-def temp_retr(wrapper, graph_list):
-
-    vdyn_dict = {'File': [],
-                    'Version': [],
-                    'Vdyn': [],
-                    'AddVdyn': [],
-                    'RemVdyn': [],
-                    }
-    
-    for list in graph_list:
-        v_num = 0
-
-        for i in range(len(list)):
-            if v_num == 0:
-                vocabulary_dynamicity = 0
-                add_voc = 0
-                rem_voc = 0
-            else:
-                print(f'Doing comparisons of {list[i-1]} and  {list[i]}')
-                voc_res = vocab_dyna(wrapper, list[i-1], list[i])
-                vocabulary_dynamicity = voc_res[0] 
-                add_voc = voc_res[1]
-                rem_voc = voc_res[2]          
-
-            vdyn_dict['File'].append(list[i])
-            vdyn_dict['Version'].append(v_num)            
-            vdyn_dict['Vdyn'].append(vocabulary_dynamicity) 
-            vdyn_dict['AddVdyn'].append(add_voc) 
-            vdyn_dict['RemVdyn'].append(rem_voc) 
-
-            v_num += 1
-
-            #Consider not writing every time
-            with open('vdyn.csv', 'w') as sc:
-                writer = csv.writer(sc) #requires import csv
-                writer.writerow(vdyn_dict.keys())
-                writer.writerows(zip(*vdyn_dict.values()))
-            
-    return vdyn_dict
 
 
 def top_entities(entity, wrapper, graph_list, file_name):

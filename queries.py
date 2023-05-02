@@ -2,7 +2,7 @@
 This file contains all the queries and functions that will be sent to our Virtuoso database
 '''
 
-#Imports
+#! Imports
 from SPARQLWrapper import SPARQLWrapper, CSV, JSON
 import csv
 import numpy as np
@@ -49,8 +49,6 @@ def graph_retr(wrapper):
 #-----------------------------------------------------------------------------
 
 #! Now we want to combine all the queries so we get the results
-
-
 def query_retriever(wrapper, query, name):
     
     wrapper.setQuery(query)
@@ -61,7 +59,6 @@ def query_retriever(wrapper, query, name):
     res = float(res)
     
     return res
-
 
 #-------------------------------------------------------------------------
 
@@ -133,8 +130,6 @@ def data_info(wrapper, graph_list):
 
 #! This section is dedicated to functions that return query text
 
-
-
 def q_density(graph):
     q_dens = f'''
         PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -157,8 +152,6 @@ def q_density(graph):
             ''' 
 
     return q_dens
-
-#------------------------------------------------------------------------------------------------------------------------
 
 def q_cluster(graph):
     
@@ -203,8 +196,6 @@ def q_cluster(graph):
     
     return q_clust
 
-#----------------------------------------------------------------------------------------------------------------------------
-
 def q_voc_uni(graph):
 
     q_voc_u = f''' 
@@ -239,8 +230,6 @@ def q_voc_uni(graph):
     '''
     
     return q_voc_u
-
-# -----------------------------------------------------------------------------------------------------------------
 
 def q_knowledge_degree(graph):
     
@@ -287,10 +276,6 @@ def q_knowledge_degree(graph):
     '''
     
     return q_know_deg
-
-
-# --------------------------------------------------------------------------------------------------------------------
-
 
 def q_growth(graph1, graph2):
     
@@ -356,8 +341,6 @@ def q_cluster2(graph):
         '''
     
     return triangle, triplet
-# --------------------------------------------------------------------------------------------------------------------
-
 
 def q_change_ratio(graph1, graph2):
     
@@ -512,8 +495,6 @@ WHERE{{
     '''
     
     return rem_cr
-    
-# ---------------------------------------------------------------------------------------------------------------
 
 def query_set(graph, offset = 0):
     q_vocab = f'''
@@ -532,7 +513,6 @@ def query_set(graph, offset = 0):
        }}'''
     
     return q_vocab
-
 
 def vocab_set(wrapper, graph):
 
@@ -609,8 +589,6 @@ def vocab_dyna(wrapper, graph1, graph2):
     final = [vdyn, add_vdyn, rem_vdyn]
 
     return final
-
-# --------------------------------------------------------------------------------------------------
 
 def q_icr(graph, ont):
     
@@ -703,7 +681,6 @@ def icr_set(wrapper, graph, ont):
         owl_set.add(ans['owl_classes']['value'])
 
     return (graph_set - owl_set), (owl_set - graph_set), len(graph_set), len(owl_set)
-
 
 def q_ipr(graph, ont):
     
@@ -800,7 +777,6 @@ def ipr_set(wrapper, graph, ont):
 
     return (graph_set - owl_set), (owl_set - graph_set), len(graph_set), len(owl_set)
 
-
 def q_imi(ont):
     
     q_imi =  f'''
@@ -836,10 +812,6 @@ def q_imi(ont):
     }} #End Full Query
     '''
     return q_imi
-
-# ----------------------------------------------------------------------------------------------------------
-
-
 
 def structure_and_content(wrapper, graph_list):
     
@@ -921,8 +893,6 @@ def structure_and_content(wrapper, graph_list):
         
     return struct_cont_dict
 
-
-    
 def quality(wrapper, graph_list, ont_list):
     
     qual_dict = {'File': [],
@@ -956,7 +926,6 @@ def quality(wrapper, graph_list, ont_list):
         writer.writerows(zip(*qual_dict.values()))  
         
     return qual_dict      
-
 
 def top_entities(entity, wrapper, graph_list, file_name):
 
@@ -1062,8 +1031,9 @@ if __name__ == '__main__':
         print(sparql.query().convert()["results"]["bindings"])
     
     #query_tester()
-
-    print(icr_set(wrapper= sparql, graph= 'http://localhost:8890/35', ont= 'http://localhost:8890/pediaowl'))
+    sparql.setQuery(q_icr(graph= 'http://localhost:8890/35', ont= 'http://localhost:8890/pediaowl'))
+    print(sparql.query().convert()["results"]["bindings"])
+    #print(icr_set(wrapper= sparql, graph= 'http://localhost:8890/35', ont= 'http://localhost:8890/pediaowl'))
     if False:
         triangle, triplet = q_cluster2(graph= 'http://localhost:8890/dims2')
         sparql.setQuery(triangle)

@@ -607,6 +607,7 @@ def q_ipr(graph, ont):
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX owl: <http://www.w3.org/2002/07/owl#>
         PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        PREFIX dbo: <http://dbpedia.org/ontology/>
 
         SELECT (xsd:float(?enum)/xsd:float(?denom) as ?ipr)
         FROM NAMED <{graph}>
@@ -616,6 +617,7 @@ def q_ipr(graph, ont):
             SELECT (COUNT(DISTINCT ?property) AS ?enum)
             WHERE {{ GRAPH <{graph}> {{
                 ?subject ?property ?object .
+                FILTER(isUri(?property) && STRSTARTS(STR(?property), STR(dbo:)))
                 }}
             }}
             }} # End subq1

@@ -30,6 +30,45 @@ def query_retriever(wrapper, query, name):
 
 #! This section is dedicated to functions that return query text
 
+
+
+def graph_retr(wrapper):
+    
+    # Set the SPARQL query to retrieve graph URIs starting with "http://example.com/"
+    wrapper.setQuery('''
+        SELECT DISTINCT ?g
+        WHERE {
+            GRAPH ?g {
+                ?s ?p ?o .
+            }
+        }
+    ''')
+
+    # Execute the query and convert the result to JSON
+    result = wrapper.query().convert()
+
+    # Extract the list of graph URIs from the JSON result
+    graph_uris = [binding['g']['value'] for binding in result['results']['bindings']]
+
+    wiki_list = []
+    db_list = []  
+
+    # Print the list of graph URIs
+    print("Graphs starting with 'http://example.com/':")
+    for uri in graph_uris:
+        if 'http://example.com/wiki_' in uri:
+            wiki_list.append(uri)
+        elif 'http://example.com/dbpedia_' in uri:
+            db_list.append(uri)
+
+    return [db_list, wiki_list]
+
+
+
+
+
+#---------------------------------------------------------------------------
+
 def q_density(graph):
     q_dens = f'''
         PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>

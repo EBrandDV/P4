@@ -594,7 +594,7 @@ def icr_set(wrapper, graph, ont):
     for ans in res['results']['bindings']:
         owl_set.add(ans['owl_classes']['value'])
 
-    return (graph_set - owl_set), len(graph_set), len(owl_set)
+    return (graph_set - owl_set), (owl_set - graph_set), len(graph_set), len(owl_set)
 
 
 def q_ipr(graph, ont):
@@ -632,6 +632,63 @@ def q_ipr(graph, ont):
         }}
         '''
     return q_ipr
+
+def q_ipr_check(graph, ont, request):
+    if request == 'g':
+        q_ipr = f'''
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+            SELECT DISTINCT(?property AS ?graph_properties)
+            FROM NAMED <{graph}>
+            WHERE {{ GRAPH <{graph}> {{
+                ?subject ?property ?object .
+                }}
+            }}
+            '''
+    if request == 'o':
+        q_ipr = f'''
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX owl: <http://www.w3.org/2002/07/owl#>
+            
+            SELECT distinct(?property as ?owl_properties)
+            FROM NAMED <{ont}>
+            WHERE {{ GRAPH <{ont}> {{
+                {{
+                ?property rdf:type owl:ObjectProperty .
+                }} UNION {{
+                ?property rdf:type owl:DatatypeProperty .
+                }} UNION {{
+                ?property rdf:type owl:FunctionalProperty .
+                }} 
+                }}
+            }}  
+            '''
+    return q_ipr
+
+def ipr_set(wrapper, graph, ont):
+    graph_set = set()
+    owl_set = set()
+
+    q_ipr = q_ipr_check(graph, ont, request= 'g')
+
+    wrapper.setQuery(q_ipr)
+    res = wrapper.query().convert()
+
+    for ans in res['results']['bindings']:
+        graph_set.add(ans['graph_properties']['value'])
+    
+    q_ipr = q_ipr_check(graph, ont, request= 'o')
+
+    wrapper.setQuery(q_ipr)
+    res = wrapper.query().convert()
+    
+    for ans in res['results']['bindings']:
+        owl_set.add(ans['owl_properties']['value'])
+
+    return (graph_set - owl_set), (owl_set - graph_set), len(graph_set), len(owl_set)
 
 
 def q_imi(ont):
@@ -887,10 +944,11 @@ if __name__ == '__main__':
         print(sparql.query().convert()["results"]["bindings"])
     
     #query_tester()
-    #print(icr_set(wrapper= sparql, graph= 'http://localhost:8890/35', ont= 'http://localhost:8890/pediaowl'))
-    triangle, triplet = q_cluster2(graph= 'http://localhost:8890/dims2')
-    sparql.setQuery(triangle)
-    cc_triangle = sparql.query().convert()["results"]["bindings"][0]['triangles']['value']
-    sparql.setQuery(triplet)
-    cc_triplet = sparql.query().convert()["results"]["bindings"][0]['connectedTriplets']['value']
-    print(int(cc_triangle)/int(cc_triplet), cc_triangle, cc_triplet)
+    print(icr_set(wrapper= sparql, graph= 'http://localhost:8890/35', ont= 'http://localhost:8890/pediaowl'))
+    if False:
+        triangle, triplet = q_cluster2(graph= 'http://localhost:8890/dims2')
+        sparql.setQuery(triangle)
+        cc_triangle = sparql.query().convert()["results"]["bindings"][0]['triangles']['value']
+        sparql.setQuery(triplet)
+        cc_triplet = sparql.query().convert()["results"]["bindings"][0]['connectedTriplets']['value']
+        print(int(cc_triangle)/int(cc_triplet), cc_triangle, cc_triplet)

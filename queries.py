@@ -514,6 +514,7 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX dbo: <http://dbpedia.org/ontology/>
 
 SELECT (xsd:float(?enum)/xsd:float(?denom) as ?icr)
 FROM NAMED <{graph}>
@@ -523,6 +524,7 @@ WHERE {{
   SELECT (COUNT(DISTINCT ?class) as ?enum)
   WHERE {{GRAPH <{graph}> {{
     ?s rdf:type ?class .
+    FILTER(isUri(?class) && STRSTARTS(STR(?class), STR(dbo:)))
    }}
   }}
  }} # End subq1
@@ -547,6 +549,7 @@ def q_icr_check(graph, ont, request):
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
 
         SELECT DISTINCT (?class as ?graph_classes)
         FROM NAMED <{graph}>

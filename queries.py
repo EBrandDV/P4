@@ -146,7 +146,7 @@ def q_density(graph):
                     }}
                     }}
                 {{
-                select (count(*) as ?E) where {{?s ?p ?o}}
+                select (count(*) as ?E) where {{ graph {{?s ?p ?o}}}}
                 }}
             }}
             ''' 

@@ -27,7 +27,7 @@ legend_mapping = {
 
 def plot_parameters_over_versions(df, parameters, markers, title, output_file_name, 
                                     legend_mapping= legend_mapping, 
-                                    x_label='Ratio', save_image= False,
+                                    y_label='Ratio', save_image= False,
                                     show_plot= False):
 
     for parameter, marker in zip(parameters, markers):
@@ -35,7 +35,7 @@ def plot_parameters_over_versions(df, parameters, markers, title, output_file_na
         plt.plot(df['Version'], df[parameter], marker=marker, linestyle='-', label=legend_name)
 
     plt.xlabel('Version')
-    plt.ylabel(x_label)
+    plt.ylabel(y_label)
     plt.title(title)
     plt.legend()
     plt.grid(axis='both', color='0.85')

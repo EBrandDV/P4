@@ -165,31 +165,39 @@ def ontology_plots(class_path, property_path):
 # -----------------------------------------------------------------------
 #! This section is for the entity analysis
 
-def top_trends(file_path, company, type):
+def top_trends(file_path, file_path2, company, type, loc= 'upper left'):
     df = pd.read_csv(file_path)
+    basics = pd.read_csv(file_path2)
+    
     
     if company.lower() == 'dbpedia':
         df = df[df['File'].str.contains('dbpedia')]
+        basics = basics[basics['File'].str.contains('dbpedia')]
     elif company.lower() == 'wikidata':
         df = df[df['File'].str.contains('wiki')]
+        basics = basics[basics['File'].str.contains('wiki')]
     else:
         print('Incorrect company input')
     
+    triples = list(basics.Triples)
+    
+    df['ratio'] = df.apply(lambda row: row.Count / triples[row.Version], axis= 1)
+    
     x = np.array(df['Version'].unique())
-    y1 = np.array(df.loc[df['Rank'] == 1, 'Count'])
-    y2 = np.array(df.loc[df['Rank'] == 2, 'Count'])
-    y3 = np.array(df.loc[df['Rank'] == 3, 'Count'])
+    y1 = np.array(df.loc[df['Rank'] == 1, 'ratio'])
+    y2 = np.array(df.loc[df['Rank'] == 2, 'ratio'])
+    y3 = np.array(df.loc[df['Rank'] == 3, 'ratio'])
     
     plt.plot(x, y1, marker = ".")
     plt.plot(x, y2, marker = "P")
     plt.plot(x, y3, marker = "d")
     
     plt.xlabel("Version")
-    plt.ylabel("Count of appearances")
+    plt.ylabel("Ratio of appearances")
 
     labels = ['Most common', '2. most common', '3. most common']
 
-    plt.legend(loc = 'upper left', labels = labels)
+    plt.legend(loc=  loc, labels = labels)
     plt.title(f'Trend in most common {type} for {company}')
 
     plt.grid(axis='both', color='0.85')

@@ -6,6 +6,7 @@ This file contains all the queries and functions that will be sent to our Virtuo
 from SPARQLWrapper import SPARQLWrapper, CSV, JSON
 import csv
 import numpy as np
+import pandas as pd
 
 
 
@@ -840,7 +841,8 @@ def structure_and_content(wrapper, graph_list):
             #Get information for each single graph
             density = query_retriever(wrapper, q_density(list[i]), 'density')
             
-            clustering = query_retriever(wrapper, q_cluster(list[i]), 'clustering_coefficient')
+            #clustering = query_retriever(wrapper, q_cluster(list[i]), 'clustering_coefficient')
+            clustering = 0
             
             knowledge_degree = query_retriever(wrapper, q_knowledge_degree(list[i]), 'knowledgedegree')
             
@@ -857,7 +859,7 @@ def structure_and_content(wrapper, graph_list):
                 growth = 0 
             else:
                 print(f'Doing comparisons of {list[i-1]} and  {list[i]}')
-                voc_res = vocabulary_dynamicity(wrapper, list[i-1], list[i])
+                voc_res = vocab_dyna(wrapper, list[i-1], list[i])
                 vocabulary_dynamicity = voc_res[0] 
                 add_voc = voc_res[1]
                 rem_voc = voc_res[2]
@@ -927,6 +929,40 @@ def quality(wrapper, graph_list, ont_list):
         
     return qual_dict      
 
+def ipcr_csv(wrapper, graph_list, version_list, ont_list, name):
+    print(name)
+    if name != 'ipr' and name != 'icr':
+        print('name can only be icr or ipr')
+        return
+
+    set_dict = {'Graph': [],
+                'Version': [],
+                'Graph - Ont check': [],
+                'len(Graph - Ont check)': [],
+                'Ont - Graph check': [],
+                'len(Ont - Graph check)': [],
+                'Graph set lenght': [],
+                'Ont set lenght': []
+                }
+    
+    for i in range(len(graph_list)):
+        if name == 'ipr':
+            graph_ont_diff, ont_graph_diff, graph_len, ont_len = ipr_set(wrapper, graph_list[i], ont_list[i])
+        if name == 'icr':
+            graph_ont_diff, ont_graph_diff, graph_len, ont_len = icr_set(wrapper, graph_list[i], ont_list[i])
+
+        set_dict['Graph'].append(graph_list[i])
+        set_dict['Version'].append(version_list[i])
+        set_dict['Graph - Ont check'].append(graph_ont_diff)
+        set_dict['len(Graph - Ont check)'].append(len(graph_ont_diff))
+        set_dict['Ont - Graph check'].append(ont_graph_diff)
+        set_dict['len(Ont - Graph check)'].append(len(ont_graph_diff))
+        set_dict['Graph set lenght'].append(graph_len)
+        set_dict['Ont set lenght'].append(ont_len)
+    
+    df = pd.DataFrame(set_dict)
+    df.to_csv(f'{name}.csv', index= False, header= True, sep = ';')
+
 def top_entities(entity, wrapper, graph_list, file_name):
 
     common_dict = {'File':[], 
@@ -962,7 +998,7 @@ def top_entities(entity, wrapper, graph_list, file_name):
                 top +=1
                 common_dict['Name'].append(l[entity]['value'])
                 common_dict['Count'].append(l['count']['value'])
-        
+            
 
             v_num += 1
 

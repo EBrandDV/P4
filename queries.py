@@ -628,6 +628,7 @@ WHERE {{
     return q_icr
 
 def q_icr_check(graph, ont, request):
+
     if request == 'g':
         q_icr = f'''
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -662,6 +663,10 @@ def q_icr_check(graph, ont, request):
         return q_icr
 
 def icr_set(wrapper, graph, ont):
+
+    if ont == None:
+        return None, None, None, None
+
     graph_set = set()
     owl_set = set()
 
@@ -684,7 +689,7 @@ def icr_set(wrapper, graph, ont):
     return (graph_set - owl_set), (owl_set - graph_set), len(graph_set), len(owl_set)
 
 def q_ipr(graph, ont):
-    
+
     q_ipr = f'''
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -722,6 +727,7 @@ def q_ipr(graph, ont):
     return q_ipr
 
 def q_ipr_check(graph, ont, request):
+
     if request == 'g':
         q_ipr = f'''
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -757,6 +763,10 @@ def q_ipr_check(graph, ont, request):
     return q_ipr
 
 def ipr_set(wrapper, graph, ont):
+
+    if ont == None:
+        return None, None, None, None
+
     graph_set = set()
     owl_set = set()
 
@@ -906,7 +916,9 @@ def quality(wrapper, graph_list, ont_list):
     v_num = 0
     
     for i in range(len(graph_list)):
-        
+        if ont_list[i] == None:
+            pass
+        else: 
         icr = query_retriever(wrapper, q_icr(graph_list[i], ont_list[i]), 'icr')
         ipr = query_retriever(wrapper, q_ipr(graph_list[i], ont_list[i]), 'ipr')
         imi = 1/query_retriever(wrapper, q_imi(ont_list[i]), 'imi')

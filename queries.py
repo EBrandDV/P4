@@ -917,11 +917,13 @@ def quality(wrapper, graph_list, ont_list):
     
     for i in range(len(graph_list)):
         if ont_list[i] == None:
-            pass
+            icr = None
+            ipr = None
+            imi = None
         else: 
-        icr = query_retriever(wrapper, q_icr(graph_list[i], ont_list[i]), 'icr')
-        ipr = query_retriever(wrapper, q_ipr(graph_list[i], ont_list[i]), 'ipr')
-        imi = 1/query_retriever(wrapper, q_imi(ont_list[i]), 'imi')
+            icr = query_retriever(wrapper, q_icr(graph_list[i], ont_list[i]), 'icr')
+            ipr = query_retriever(wrapper, q_ipr(graph_list[i], ont_list[i]), 'ipr')
+            imi = 1/query_retriever(wrapper, q_imi(ont_list[i]), 'imi')
         
         #Insert information into the  dictionary
         qual_dict['File'].append(graph_list[i])
@@ -958,6 +960,8 @@ def ipcr_csv(wrapper, graph_list, version_list, ont_list, name):
                 }
     
     for i in range(len(graph_list)):
+        if ont_list[i] == None:
+            graph_ont_diff, ont_graph_diff, graph_len, ont_len = None, None, None, None
         if name == 'ipr':
             graph_ont_diff, ont_graph_diff, graph_len, ont_len = ipr_set(wrapper, graph_list[i], ont_list[i])
         if name == 'icr':
@@ -966,9 +970,15 @@ def ipcr_csv(wrapper, graph_list, version_list, ont_list, name):
         set_dict['Graph'].append(graph_list[i])
         set_dict['Version'].append(version_list[i])
         set_dict['Graph - Ont check'].append(graph_ont_diff)
-        set_dict['len(Graph - Ont check)'].append(len(graph_ont_diff))
+        if ont_list[i] == None:
+            set_dict['len(Graph - Ont check)'].append(None)
+        else:
+            set_dict['len(Graph - Ont check)'].append(len(graph_ont_diff))
         set_dict['Ont - Graph check'].append(ont_graph_diff)
-        set_dict['len(Ont - Graph check)'].append(len(ont_graph_diff))
+        if ont_list[i] == None:
+            set_dict['len(Ont - Graph check)'].append(None)
+        else:    
+            set_dict['len(Ont - Graph check)'].append(len(ont_graph_diff))
         set_dict['Graph set lenght'].append(graph_len)
         set_dict['Ont set lenght'].append(ont_len)
     

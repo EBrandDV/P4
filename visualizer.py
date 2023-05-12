@@ -51,7 +51,7 @@ def plot_parameters_over_versions(df, parameters, markers, title, output_file_na
 
 #First we have the plots for the quality measures (ICR, IPR and IMI)
 
-def quality_plots(file_path):
+def quality_plots(file_path, name):
     
     df = pd.read_csv(file_path)
     
@@ -63,7 +63,7 @@ def quality_plots(file_path):
     plt.ylabel("Ratio")
     
     plt.legend(loc = 'upper right')
-    plt.title('Instantiated Class and Property Ratio for DBpedia')
+    plt.title(f'Instantiated Class and Property Ratio for {name}')
     
     plt.grid(axis='both', color='0.85')
     plt.xticks(np.arange(0, len(df['ICR'])+1, 1))
@@ -75,7 +75,7 @@ def quality_plots(file_path):
     plt.plot('IMI', data = df, color = 'red', marker = 'X')
     plt.xlabel("Version")
     plt.ylabel("Ratio")
-    plt.title('Inverse Multiple Inhertiance for DBpedia')
+    plt.title(f'Inverse Multiple Inhertiance for {name}')
     plt.grid(axis='both', color='0.85')
     plt.xticks(np.arange(0, len(df['IMI'])+1, 1))
     
@@ -99,7 +99,7 @@ def ont_prepare(path):
 
 #Then, we can plot the growth of the classes or the properties with the following function
 
-def ont_growth(file_path, title_name): 
+def ont_growth(file_path, title_name, graph_name): 
     
     df = ont_prepare(file_path)
     
@@ -118,7 +118,7 @@ def ont_growth(file_path, title_name):
     labels = ['Ontology', f'Instantiated from ontology', 'Difference']
 
     plt.legend(loc = 'upper left', labels = labels)
-    plt.title(f'Ontology and graph {title_name} growth for DBpedia')
+    plt.title(f'Ontology and graph {title_name} growth for {graph_name}')
 
     plt.grid(axis='both', color='0.85')
 
@@ -128,7 +128,7 @@ def ont_growth(file_path, title_name):
 
 #To get the external use ratio, we can use the next function
 
-def external_ratio(class_path, property_path): 
+def external_ratio(class_path, property_path, name): 
     
     df_icr = ont_prepare(class_path)
     df_ipr = ont_prepare(property_path)
@@ -147,7 +147,7 @@ def external_ratio(class_path, property_path):
     labels = ['External Class Ratio', 'External Property Ratio']
 
     plt.legend(loc = 'upper left', labels = labels)
-    plt.title('External Class and Property Ratio for DBpedia')
+    plt.title(f'External Class and Property Ratio for {name}')
 
     plt.grid(axis='both', color='0.85')
 
@@ -196,7 +196,7 @@ def top_trends(file_path, file_path2, company, type, loc= 'upper left', defined=
         plt.plot(x, y2, marker = "P")
         plt.plot(x, y3, marker = "d")
     except ValueError:
-        print(f'Please make sure that there are atleast 3 unique {type}')
+        print(f'Please make sure that there are at least 3 unique {type}')
     
     plt.xlabel("Version")
     plt.ylabel("Ratio of appearances")

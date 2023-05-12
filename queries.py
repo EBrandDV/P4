@@ -567,7 +567,6 @@ def vocab_union(wrapper, graph1, graph2):
   return denom  
 
 def vocab_dyna(wrapper, graph1, graph2):
-    print('Starting queries')
 
     old_set = vocab_set(wrapper, graph1)
     new_set = vocab_set(wrapper, graph2)
@@ -576,16 +575,12 @@ def vocab_dyna(wrapper, graph1, graph2):
     new_vocab = len(new_set - old_set)
 
     enum = old_vocab + new_vocab
-    print(f'Enumerator: {enum}')
 
     denom = vocab_union(wrapper, graph1, graph2)
-    print(f'Denominator: {denom}')
 
     vdyn = enum/denom
     add_vdyn = new_vocab/denom
     rem_vdyn = old_vocab/denom
-
-    print(f'Vdyn: {vdyn}')
 
     final = [vdyn, add_vdyn, rem_vdyn]
 
@@ -868,7 +863,7 @@ def structure_and_content(wrapper, graph_list):
                 rem_cr = 0
                 growth = 0 
             else:
-                print(f'Doing comparisons of {list[i-1]} and  {list[i]}')
+                #print(f'Doing comparisons of {list[i-1]} and  {list[i]}')
                 voc_res = vocab_dyna(wrapper, list[i-1], list[i])
                 vocabulary_dynamicity = voc_res[0] 
                 add_voc = voc_res[1]
@@ -895,7 +890,7 @@ def structure_and_content(wrapper, graph_list):
         
             v_num += 1
             
-            print(struct_cont_dict)
+            #print(struct_cont_dict)
     
             #Consider not writing every time
             with open('structure_and_content.csv', 'w') as sc:
@@ -934,7 +929,7 @@ def quality(wrapper, graph_list, ont_list):
         
         v_num +=1
         
-        print(qual_dict)
+        #print(qual_dict)
         
     with open('quality.csv', 'w') as q:
         writer = csv.writer(q) #requires import csv
@@ -944,9 +939,9 @@ def quality(wrapper, graph_list, ont_list):
     return qual_dict      
 
 def ipcr_csv(wrapper, graph_list, version_list, ont_list, name):
-    print(name)
+    #print(name)
     if name != 'ipr' and name != 'icr':
-        print('name can only be icr or ipr')
+        print("Variable 'name' can only be icr or ipr")
         return
 
     set_dict = {'Graph': [],

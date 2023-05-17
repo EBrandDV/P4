@@ -1,3 +1,11 @@
-File,Version,Ont
-http://localhost:8890/dims,0,http://localhost:8890/pediaowl
-http://localhost:8890/35,1,http://localhost:8890/pediaowl
+File;Version;Ont
+http://example.com/dbpedia_3-5;0;http://example.com/dbpedia_3-5_owl
+http://example.com/dbpedia_3-5-1;1;http://example.com/dbpedia_3-5-1_owl
+http://example.com/dbpedia_3-6;2;http://example.com/dbpedia_3-6_owl
+http://example.com/dbpedia_3-7;3;http://example.com/dbpedia_3-7_owl
+http://example.com/dbpedia_3-8;4;http://example.com/dbpedia_3-8_owl
+http://example.com/dbpedia_3-9;5;http://example.com/dbpedia_3-9_owl
+http://example.com/dbpedia_2015-04;6;http://example.com/dbpedia_2015-04_owl
+http://example.com/dbpedia_2015-10;7;http://example.com/dbpedia_2015-10_owl
+http://example.com/dbpedia_2016-04;8;http://example.com/dbpedia_2016-04_owl
+http://example.com/dbpedia_2016-10;9;http://example.com/dbpedia_2016-10_owl

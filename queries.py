@@ -659,7 +659,7 @@ def q_icr_check(graph, ont, request):
 
 def icr_set(wrapper, graph, ont):
 
-    if ont == None:
+    if ont == 'None':
         return None, None, None, None
 
     graph_set = set()
@@ -759,7 +759,7 @@ def q_ipr_check(graph, ont, request):
 
 def ipr_set(wrapper, graph, ont):
 
-    if ont == None:
+    if ont == 'None':
         return None, None, None, None
 
     graph_set = set()
@@ -911,7 +911,7 @@ def quality(wrapper, graph_list, ont_list):
     v_num = 0
     
     for i in range(len(graph_list)):
-        if ont_list[i] == None:
+        if ont_list[i] == 'None':
             icr = None
             ipr = None
             imi = None
@@ -955,7 +955,7 @@ def ipcr_csv(wrapper, graph_list, version_list, ont_list, name):
                 }
     
     for i in range(len(graph_list)):
-        if ont_list[i] == None:
+        if ont_list[i] == 'None':
             graph_ont_diff, ont_graph_diff, graph_len, ont_len = None, None, None, None
         if name == 'ipr':
             graph_ont_diff, ont_graph_diff, graph_len, ont_len = ipr_set(wrapper, graph_list[i], ont_list[i])
@@ -965,12 +965,12 @@ def ipcr_csv(wrapper, graph_list, version_list, ont_list, name):
         set_dict['Graph'].append(graph_list[i])
         set_dict['Version'].append(version_list[i])
         set_dict['Graph - Ont check'].append(graph_ont_diff)
-        if ont_list[i] == None:
+        if ont_list[i] == 'None':
             set_dict['len(Graph - Ont check)'].append(None)
         else:
             set_dict['len(Graph - Ont check)'].append(len(graph_ont_diff))
         set_dict['Ont - Graph check'].append(ont_graph_diff)
-        if ont_list[i] == None:
+        if ont_list[i] == 'None':
             set_dict['len(Ont - Graph check)'].append(None)
         else:    
             set_dict['len(Ont - Graph check)'].append(len(ont_graph_diff))

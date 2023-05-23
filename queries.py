@@ -915,7 +915,6 @@ def quality(wrapper, graph_list, ont_list):
     v_num = 0
     
     for i in range(len(graph_list)):
-        print(ont_list[i])
         if ont_list[i] == 'None' or isNaN(ont_list[i]):
             icr = None
             ipr = None
